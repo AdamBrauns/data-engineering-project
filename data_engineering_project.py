@@ -59,7 +59,7 @@ def main(sqs, queue_url, conn, cursor):
             print('Committed to database!')
           else:
             print('There was an issue removing the batch, canceling database commit.')
-            logout(conn, cursor)
+            exit_program(conn, cursor)
 
       # If no new messages come in, increment timer and output message to user
       else:
