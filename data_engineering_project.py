@@ -2,6 +2,7 @@
 
 # Import modules
 import boto3
+import json
 from configparser import ConfigParser
 
 def main(sqs, queue_url):
@@ -12,12 +13,20 @@ def main(sqs, queue_url):
   max_messages = 10
   while(1):
     try:
+      # Receive messages in batches
       messages = sqs.receive_message(
         QueueUrl=queue_url,
         MaxNumberOfMessages=10,
         WaitTimeSeconds=wait_sec
       )
-      print(messages)
+
+      if (len(messages) > 1):
+        for msg in messages['Messages']:
+          usr_atr = json.loads(msg['Body'])
+          print(msg)
+      else:
+        print('Error: Data is missing the following key: {0}'.format(e))
+        pass
     except Exception as e:
       print('Error: {0}'.format(e))
       exit()
