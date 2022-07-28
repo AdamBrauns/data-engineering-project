@@ -8,12 +8,16 @@ def main(sqs, queue_url):
   """
   Main function to run the program
   """
+  wait_sec = 10
+  max_messages = 10
   while(1):
     try:
-      message = sqs.receive_message(
+      messages = sqs.receive_message(
         QueueUrl=queue_url,
+        MaxNumberOfMessages=10,
+        WaitTimeSeconds=wait_sec
       )
-      print(message)
+      print(messages)
     except Exception as e:
       print('Error: {0}'.format(e))
       exit()
@@ -36,6 +40,8 @@ def config_parser(filename, section):
   """
   Parse config files
 
+  :param filename: file to be parsed
+  :param section: section of the file to be parsed
   :return: dictionary of config params
   """
   parser = ConfigParser()
@@ -55,5 +61,5 @@ if __name__ == '__main__':
   try:
     main(sqs, queue_url)
   except KeyboardInterrupt:
-    print('Exiting the program')
+    print('\nExiting the program')
     exit()
