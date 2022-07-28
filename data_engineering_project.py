@@ -2,6 +2,7 @@
 
 # Import modules
 import boto3
+import hashlib
 import json
 import psycopg2
 from configparser import ConfigParser
@@ -81,6 +82,15 @@ def config_parser(filename, section):
   else:
     raise Exception('File {0} does not contain section {1}'.format(filename, section))
   return conf_file
+
+def mask_data(conf_data):
+  """
+  Mask confidential information
+
+  :param conf_data: data to be masked
+  :return: masked value
+  """
+  return hashlib.sha256(conf_data.encode()).hexdigest()
 
 if __name__ == '__main__':
   [sqs, queue_url] = sqs_connect()
