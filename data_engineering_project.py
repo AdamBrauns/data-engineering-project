@@ -4,21 +4,26 @@
 import boto3
 from configparser import ConfigParser
 
-def main():
+def main(sqs, queue_url):
   """
   Main function to run the program
   """
-  [sqs, queue_url] = sqs_connect()
-  message = sqs.receive_message(
-    QueueUrl=queue_url,
-  )
-  print(message)
+  while(1):
+    try:
+      message = sqs.receive_message(
+        QueueUrl=queue_url,
+      )
+      print(message)
+    except Exception as e:
+      print('Error: {0}'.format(e))
+      exit()
 
 def sqs_connect():
   """
   Connect to sqs queue
 
-  :return: sqs queue and queue url
+  :return: sqs queue
+  :return: queue url
   """
   try:
     sqs_params = config_parser('config.ini', 'sqs')
@@ -46,4 +51,9 @@ def config_parser(filename, section):
   return conf_file
 
 if __name__ == '__main__':
-  main()
+  [sqs, queue_url] = sqs_connect()
+  try:
+    main(sqs, queue_url)
+  except KeyboardInterrupt:
+    print('Exiting the program')
+    exit()
