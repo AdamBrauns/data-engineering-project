@@ -70,16 +70,16 @@ The program will continue to run until the user exits it by executing a `ctr-c` 
 ## Next Steps
 
 - Enhance logging functionality
-  - The logging in this application can be improved in a few categories;
-   - Writing to syslog facility for a centralized logging location
-   - More verbose logging to give greater details into what's happening
+  - The logging in this application can be improved in a few categories:
+    - Writing to syslog facility for a centralized logging location
+    - More verbose logging to give enhanced details to simplify troubleshooting efforts
 - Better error handling
   - The application could use an overhaul to error handling in general
-    - Improve the current error handling to include more useful information for debuggin purposes
-    - Build in more error handlers for better usability
+    - Improve the current error handling to include additional information
+    - Build in more error handlers
     - etc.
-- Implement a daemonized approach for the application
-  - By implementing a daemon or cron approach, it will allow a more seamless experience than running it directly on the console or with nohup
+- Implement a daemonized approach
+  - Implementing a daemon or cron approach will allow a more seamless experience
 - The main function could be redesigned for better maintainability and readability
 
 ## Contact
