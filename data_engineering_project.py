@@ -14,6 +14,7 @@ def main(sqs, queue_url, conn, cursor):
   """
   wait_sec = 10
   max_messages = 10
+  time_wo_msg = 0
   while(1):
     try:
       # Receive messages in batches
@@ -24,6 +25,7 @@ def main(sqs, queue_url, conn, cursor):
       )
 
       if (len(messages) > 1):
+        time_wo_msg = 0
         batch_delete = []
         for msg in messages['Messages']:
           try:
@@ -51,7 +53,8 @@ def main(sqs, queue_url, conn, cursor):
             logout(conn, cursor)
 
       else:
-        print('Info: No new messages in {0} second(s)'.format(wait_sec))
+        time_wo_msg = time_wo_msg + wait_sec
+        print('Info: No new messages in {0} second(s)'.format(time_wo_msg))
     except Exception as e:
       print('Error: {0}'.format(e))
       exit_program(conn, cursor)
