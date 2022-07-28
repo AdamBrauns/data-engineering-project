@@ -3,9 +3,10 @@
 # Import modules
 import boto3
 import json
+import psycopg2
 from configparser import ConfigParser
 
-def main(sqs, queue_url):
+def main(sqs, queue_url, conn, cursor):
   """
   Main function to run the program
   """
@@ -45,6 +46,22 @@ def sqs_connect():
     print('SQS config missing parameter: {0}'.format(e))
     exit()
 
+def db_connect():
+  """
+  Make connection to database
+
+  :return: connection object
+  :return: database cursor
+  """
+  try:
+    params = config_parser('config.ini', 'postgresql')
+    conn = psycopg2.connect(**params)
+  except Exception as e:
+    print('Error: {0}'.format(e))
+    exit()
+  else:
+    return conn, conn.cursor()
+
 def config_parser(filename, section):
   """
   Parse config files
@@ -67,8 +84,9 @@ def config_parser(filename, section):
 
 if __name__ == '__main__':
   [sqs, queue_url] = sqs_connect()
+  [conn, cursor] = db_connect()
   try:
-    main(sqs, queue_url)
+    main(sqs, queue_url, conn, cursor)
   except KeyboardInterrupt:
     print('\nExiting the program')
     exit()
