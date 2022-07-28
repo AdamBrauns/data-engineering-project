@@ -70,7 +70,7 @@ The program will continue to run until the user exits it by executing a `ctr-c` 
 ## Next Steps
 
 - Enhance logging functionality
- - The logging in this application can be improved in a few categories;
+  - The logging in this application can be improved in a few categories;
    - Writing to syslog facility for a centralized logging location
    - More verbose logging to give greater details into what's happening
 - Better error handling
