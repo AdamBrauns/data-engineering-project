@@ -31,7 +31,7 @@ def main(sqs, queue_url, conn, cursor):
         pass
     except Exception as e:
       print('Error: {0}'.format(e))
-      exit()
+      exit_program(conn, cursor)
 
 def sqs_connect():
   """
@@ -92,11 +92,22 @@ def mask_data(conf_data):
   """
   return hashlib.sha256(conf_data.encode()).hexdigest()
 
+def exit_program(conn, cursor):
+  """
+  Close database connection and exit the program
+
+  :param conn: database connection
+  :param cursor: database cursor
+  """
+  print('\nNow exiting the program... Goodbye!')
+  cursor.close()
+  conn.close()
+  exit()
+
 if __name__ == '__main__':
   [sqs, queue_url] = sqs_connect()
   [conn, cursor] = db_connect()
   try:
     main(sqs, queue_url, conn, cursor)
   except KeyboardInterrupt:
-    print('\nExiting the program')
-    exit()
+    exit_program(conn, cursor)
