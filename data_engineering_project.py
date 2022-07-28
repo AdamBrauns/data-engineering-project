@@ -6,6 +6,7 @@ import hashlib
 import json
 import psycopg2
 from configparser import ConfigParser
+from datetime import datetime
 
 def main(sqs, queue_url, conn, cursor):
   """
@@ -24,10 +25,20 @@ def main(sqs, queue_url, conn, cursor):
 
       if (len(messages) > 1):
         for msg in messages['Messages']:
-          usr_atr = json.loads(msg['Body'])
-          print(msg)
+          try:
+            usr_atr = json.loads(msg['Body'])
+            cursor.execute("INSERT INTO user_logins (user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date) VALUES (%s, %s, %s, %s, %s, %s, %s)", (usr_atr['user_id'], usr_atr['device_type'], mask_data(usr_atr['ip']), mask_data(usr_atr['device_id']), usr_atr['locale'], usr_atr['app_version'].replace('.', ''), datetime.today().strftime('%Y-%m-%d')))
+          except KeyError as e:
+            print('Error: Data is missing data ({0}), removing from queue...'.format(e))
+            sqs.delete_message(
+              QueueUrl=queue_url,
+              ReceiptHandle=msg['ReceiptHandle']
+            )
+
+          conn.commit()
+
       else:
-        print('Error: Data is missing the following key: {0}'.format(e))
+        print('Info: No new messages in {0} second(s)'.format(wait_sec))
         pass
     except Exception as e:
       print('Error: {0}'.format(e))
