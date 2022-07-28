@@ -24,10 +24,13 @@ def main(sqs, queue_url, conn, cursor):
       )
 
       if (len(messages) > 1):
+        batch_delete = []
         for msg in messages['Messages']:
           try:
             usr_atr = json.loads(msg['Body'])
             cursor.execute("INSERT INTO user_logins (user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date) VALUES (%s, %s, %s, %s, %s, %s, %s)", (usr_atr['user_id'], usr_atr['device_type'], mask_data(usr_atr['ip']), mask_data(usr_atr['device_id']), usr_atr['locale'], usr_atr['app_version'].replace('.', ''), datetime.today().strftime('%Y-%m-%d')))
+            batch_delete.append({'Id': msg['MessageId'], 'ReceiptHandle': msg['ReceiptHandle']})
+            print('Wrote to database for batch item {0}'.format(len(batch_delete)))
           except KeyError as e:
             print('Error: Data is missing data ({0}), removing from queue...'.format(e))
             sqs.delete_message(
@@ -35,11 +38,20 @@ def main(sqs, queue_url, conn, cursor):
               ReceiptHandle=msg['ReceiptHandle']
             )
 
-          conn.commit()
+        if batch_delete:
+          response = sqs.delete_message_batch(
+                       QueueUrl=queue_url, 
+                       Entries=batch_delete
+                     )
+          if ('Successful' in response.keys()):
+            conn.commit()
+            print('Committed to database!')
+          else:
+            print('There was an issue removing the batch, canceling database commit.')
+            logout(conn, cursor)
 
       else:
         print('Info: No new messages in {0} second(s)'.format(wait_sec))
-        pass
     except Exception as e:
       print('Error: {0}'.format(e))
       exit_program(conn, cursor)
